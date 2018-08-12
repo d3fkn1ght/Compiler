@@ -44,7 +44,6 @@ int error(exception* e1) {
 
 int parse(exception* e1, FILE* fp) {
 	int maxline = 256;
-	nodeList* nlList = NULL;
 	node* node1 = NULL;
 	parser* ps1 = NULL;
 
@@ -53,10 +52,6 @@ int parse(exception* e1, FILE* fp) {
 #endif // DEBUG
 
 	int i = 0;
-	if ((nlList = newNodeList()) == NULL) {
-		// throw error;
-	}
-
 	if ((ps1 = newParser()) == NULL) {
 		// throw error
 		goto end;
@@ -67,7 +62,7 @@ int parse(exception* e1, FILE* fp) {
 	}
 
 	while ((node1 = get_tok(&fp, ps1)) != NULL) {
-		if ((addnewnode(&nlList, node1)) != 0) {
+		if ((appendNode(node1)) != 0) {
 			// throw error
 		}
 #ifdef _DEBUG

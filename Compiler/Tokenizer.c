@@ -123,7 +123,7 @@ node* get_tok(FILE** fp, parser* ps1) {
 		// match token
 		// create node
 		// return
-		node1->token.tType= (int)(matchToken(fp, ps1, &tokenLength));
+		node1->token->tType = matchToken(fp, ps1, &tokenLength);
 		if (ps1->psState == PS_ERR) {
 			// throw ERROR
 			goto end;

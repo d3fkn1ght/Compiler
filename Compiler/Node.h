@@ -10,12 +10,10 @@ struct node {
 };
 
 //int addnewnode(node** nlist, node* node1);
-int addnewnode(node** node1);
+int appendNode(node* node1);
 node* getNlHead();
 node* getNlTail();
 void freeNlList();
-node* newListNode();
 node* newNode();
-node* newNodeList();
 void printNodes();
 int setNodeName(node* node1, char* buf, int len);

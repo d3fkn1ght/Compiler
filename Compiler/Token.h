@@ -1,5 +1,7 @@
 #pragma once
 
+extern const int maxTokenNameSz;
+
 typedef struct s_token s_token;
 typedef enum tokenType tokenType;
 
@@ -7,6 +9,8 @@ typedef struct s_token {
 	tokenType tType;
 	char* Name;
 } s_token;
+
+s_token* newToken();
 
 enum tokenType {
 	NONE,
