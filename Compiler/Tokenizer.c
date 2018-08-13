@@ -1,3 +1,4 @@
+// use int to keep track of buffer available
 #include <stdlib.h>
 #include <string.h>
 
@@ -6,15 +7,27 @@
 #include "Tokenizer.h"
 
 
-#define isDigit(c) (\
-				(c >= '0' && 'c' <= '9'))
+#define possibleNumberStart(c) (\
+				((c >= '0' && c <= '9') || (c == '-') || (c == '.')))
 
-#define possibleID(c) (\
+#define possibleNumberDigit(c) (\
+				((c >= '0' && c <= '9') || (c == '.')))
+
+#define possibleIDStart(c) (\
               (c >= 'a' && c <= 'z')\
                || (c >= 'A' && c <= 'Z')\
                || c == '_'\
                || (c >= 128))
 
+#define possibleIDChar(c) (\
+              (c >= 'a' && c <= 'z')\
+               || (c >= 'A' && c <= 'Z')\
+               || c == '_'\
+               || (c >= 128)\
+			   || ((c >= '0') && (c <= '9')))
+
+
+//start here
 void get_nextTok(FILE** fp, parser* ps1) {
 	int scanResult = 0;
 
@@ -57,10 +70,6 @@ tokenType matchOne(parser* ps1) {
 
 tokenType matchTwo(FILE** fp, parser* ps1) {
 	// try to match two chars
-	if (possibleID(ps1->buf[0])) {
-		// check next char to see if valid two char ID
-		return ID;
-	}
 	return NONE;
 }
 
@@ -68,6 +77,7 @@ tokenType matchToken(FILE** fp, parser* ps1, int* tokenLength) {
 	// while loop to iterate over rest of buffer
 	// check for eof if so handle eof
 	// else check for terminal match
+	int index = 0;
 
 	get_nextTok(fp, ps1);
 	if (ps1->psState == PS_ERR) {
@@ -80,12 +90,12 @@ tokenType matchToken(FILE** fp, parser* ps1, int* tokenLength) {
 	}
 	
 	// match int
-	if ((strncmp(ps1->buf, "int", 3)) == 0) {
+	if ((strncmp(ps1->buf, "int", strlen(ps1->buf))) == 0) {
 		*tokenLength = 3;
 		return INT;
 	}
 
-	if ((strncmp(ps1->buf, "return", 6)) == 0) {
+	if ((strncmp(ps1->buf, "return", strlen(ps1->buf))) == 0) {
 		*tokenLength = 6;
 		return RETURN;
 	}
@@ -94,20 +104,28 @@ tokenType matchToken(FILE** fp, parser* ps1, int* tokenLength) {
 	//if matchTwo return
 
 
-	// start here
-	// check if ID
-	if (possibleID(ps1->buf[0])) {
-		*tokenLength = 1;
-		return ID;
-	}
-
-	if (isDigit(ps1->buf[0])) {
-		*tokenLength = 1;
+	index = 0;
+	if (possibleNumberStart(ps1->buf[index])) {
+		index++;
+		*tokenLength += 1;
+		while (possibleNumberDigit(ps1->buf[index])) {
+			index++;
+			*tokenLength += 1;
+		}
 		return NUMBER;
 	}
 
-	// check if int
-	
+	index = 0;
+	if (possibleIDStart(ps1->buf[index])) {
+		index++;
+		*tokenLength += 1;
+		while (possibleIDChar(ps1->buf[index])) {
+			index++;
+			*tokenLength += 1;
+		}
+		return ID;
+	}
+
 	return NONE;
 }
 

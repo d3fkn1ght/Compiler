@@ -1,9 +1,14 @@
+100
 int(
+int ()
+intreturn
 return
 x
-
 {
 }
 (
 )
 ;
+
+scan whole line
+break into tokens
