@@ -6,6 +6,13 @@
 #include "Parser.h"
 #include "Tokenizer.h"
 
+const char* tokenNames[] = {
+	"NONE",
+	"int",
+	"return"
+};
+
+int currentBUFSIZE = 0;
 
 #define possibleNumberStart(c) (\
 				((c >= '0' && c <= '9') || (c == '-') || (c == '.')))
@@ -16,18 +23,17 @@
 #define possibleIDStart(c) (\
               (c >= 'a' && c <= 'z')\
                || (c >= 'A' && c <= 'Z')\
-               || c == '_'\
+               || (c == '_')\
                || (c >= 128))
 
 #define possibleIDChar(c) (\
               (c >= 'a' && c <= 'z')\
                || (c >= 'A' && c <= 'Z')\
-               || c == '_'\
+               || (c == '_')\
                || (c >= 128)\
 			   || ((c >= '0') && (c <= '9')))
 
 
-//start here
 void get_nextTok(FILE** fp, parser* ps1) {
 	int scanResult = 0;
 
@@ -36,6 +42,12 @@ void get_nextTok(FILE** fp, parser* ps1) {
 		return;
 	}
 
+	// #3
+	// check if buffer empty
+	// if not, strcpy buffer to backup buffer
+	// then swap to main buffer
+	// then move main to backup for future scans
+	// keep track of currentBUFSIZE for lexing and for strcpy
 	scanResult = fscanf_s(*fp, "%s", ps1->buf, BUFSIZE);
 	ps1->end += strlen(ps1->buf);
 
@@ -68,18 +80,19 @@ tokenType matchOne(parser* ps1) {
 	}
 }
 
-tokenType matchTwo(FILE** fp, parser* ps1) {
+tokenType matchTwo(parser* ps1) {
 	// try to match two chars
 	return NONE;
 }
 
 tokenType matchToken(FILE** fp, parser* ps1, int* tokenLength) {
-	// while loop to iterate over rest of buffer
-	// check for eof if so handle eof
-	// else check for terminal match
 	int index = 0;
+	tokenType matchToken = NONE;
 
+	// #3
+	// check to see if need to scan
 	get_nextTok(fp, ps1);
+
 	if (ps1->psState == PS_ERR) {
 		// throw error
 	}
@@ -89,20 +102,25 @@ tokenType matchToken(FILE** fp, parser* ps1, int* tokenLength) {
 		return ERROR;
 	}
 	
-	// match int
-	if ((strncmp(ps1->buf, "int", strlen(ps1->buf))) == 0) {
-		*tokenLength = 3;
-		return INT;
+	if ((matchToken = matchOne(ps1)) != NONE) {
+		*tokenLength = 1;
+		return (int)matchToken;
+	}
+		
+	if ((matchToken = matchTwo(ps1)) != NONE) {
+		*tokenLength = 2;
+		return (int)matchToken;
 	}
 
-	if ((strncmp(ps1->buf, "return", strlen(ps1->buf))) == 0) {
-		*tokenLength = 6;
-		return RETURN;
+	// #1
+	// check strncmp for loop
+	
+	for (int i = 1; i < (sizeof(tokenNames)/sizeof(const char*)); i++) {
+		if ((strncmp(ps1->buf, tokenNames[i], strlen(ps1->buf))) == 0) {
+			*tokenLength = (int)strlen(tokenNames[i]);
+			return (tokenType)i;
+		}
 	}
-
-	//if (matchOne) return
-	//if matchTwo return
-
 
 	index = 0;
 	if (possibleNumberStart(ps1->buf[index])) {
@@ -115,7 +133,6 @@ tokenType matchToken(FILE** fp, parser* ps1, int* tokenLength) {
 		return NUMBER;
 	}
 
-	index = 0;
 	if (possibleIDStart(ps1->buf[index])) {
 		index++;
 		*tokenLength += 1;
@@ -138,9 +155,6 @@ node* get_tok(FILE** fp, parser* ps1) {
 	}
 
 	for (;;) {
-		// match token
-		// create node
-		// return
 		node1->token->tType = matchToken(fp, ps1, &tokenLength);
 		if (ps1->psState == PS_ERR) {
 			// throw ERROR
@@ -156,6 +170,9 @@ node* get_tok(FILE** fp, parser* ps1) {
 		if ((setNodeName(node1, ps1->buf, tokenLength)) == -1) {
 			// throw error
 		}
+
+		// #2
+		// move ptrs ps1->start after match in get_tok
 		return node1;
 	}
 

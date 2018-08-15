@@ -20,7 +20,8 @@ int main(int argc, char** argv[]) {
 	}
 	
 	// read in all lines from Grammar.h
-	// write out to const char* tokenNames[] tokenizer.h 
+	// extern const char tokenNames[]; in token.h
+	// write out to const char* tokenNames[] token.c 
 	// write out to enum tokenType in token.h
 	// write out defines for token.h
 

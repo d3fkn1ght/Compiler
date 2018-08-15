@@ -10,6 +10,7 @@ typedef struct s_token {
 	char* Name;
 } s_token;
 
+freeToken(s_token* t1);
 s_token* newToken();
 
 enum tokenType {
@@ -28,15 +29,19 @@ enum tokenType {
 };
 
 #define NONE 0
-#define ID 1
-#define INT 2
-#define LBRACE 3
-#define LPAREN 4
-#define NEWLINE 5
-#define NUMBER 6
-#define RBRACE 7
-#define RETURN 8
-#define RPAREN 9
-#define SEMICOLON 10
+// keywords
+#define INT			1
+#define RETURN		2
+
+#define ID			3
+#define NUMBER		4
+
+// one and two char symbols like operators
+#define LBRACE		5
+#define LPAREN		6
+#define NEWLINE		7
+#define RBRACE		8
+#define RPAREN		9
+#define SEMICOLON	10
 
 #define ERROR 11
