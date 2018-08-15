@@ -10,8 +10,9 @@ typedef struct s_token {
 	char* Name;
 } s_token;
 
-freeToken(s_token* t1);
+freeToken(s_token* token);
 s_token* newToken();
+int setTokenName(s_token* token, char* buf, size_t len);
 
 enum tokenType {
 	NONE,

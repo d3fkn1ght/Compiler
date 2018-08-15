@@ -7,6 +7,8 @@
 int maxErrorStrSz = 2050;
 int	maxErrorInfoSz = 130;
 
+exception* e1 = NULL;
+
 exception* new_exception() {
 	// check if malloc works for each piece of struct
 	exception* e2;

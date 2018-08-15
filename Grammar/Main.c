@@ -24,7 +24,7 @@ int main(int argc, char** argv[]) {
 	// write out to const char* tokenNames[] token.c 
 	// write out to enum tokenType in token.h
 	// write out defines for token.h
-
+	//	modify singleCharTokens string in stringContainsSingleCharToken function of tokenizer.c
 
 end:
 	if (srcFP != NULL) {

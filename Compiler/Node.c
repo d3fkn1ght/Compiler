@@ -1,14 +1,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Token.h"
+
 #include "Node.h"
 
 node* nlHead = NULL;
 node* nlTail = NULL;
+int nodeCount = 0;
+
+int appendNode(node* node1) {
+	if (nlHead == NULL) {
+		nlHead = node1;
+		nlTail = node1;
+	}
+
+	nlTail->Next = node1;
+	nlTail = node1;
+	nodeCount++;
+
+	return 0;
+}
 
 void freeNlList() {
+	node* current = getNlHead();
+	node* tmpNode = NULL;
 
+	while (current != NULL) {
+		tmpNode = current;
+		free(current);
+		current = tmpNode;
+	}
 }
 
 node* getNlHead() {
@@ -17,6 +38,13 @@ node* getNlHead() {
 
 node* getNlTail() {
 	return nlTail;
+}
+
+void freeNode(node* node1) {
+	if (node1 != NULL) {
+		freeToken(node1->token);
+		free(node1);
+	}
 }
 
 node* newNode() {
@@ -36,20 +64,7 @@ node* newNode() {
 	return node1;
 }
 
-int appendNode(node* node1) {
-	if (nlHead == NULL) {
-		nlHead = node1;
-		nlTail = node1;
-	}
-
-	nlTail->Next = node1;
-	nlTail = node1;
-
-	return 0;
-}
-
 void printNodes() {
-	int i = 0;
 	node* current = getNlHead();
 	while (current != NULL) {
 		fprintf(stderr, "Node Type: %d\n", current->token->tType);
@@ -58,6 +73,7 @@ void printNodes() {
 	}
 }
 
-int setNodeName(node* node1, char* buf, int len) {
-	return strncpy_s(node1->token->Name, maxTokenNameSz, buf, len);
+void setNlTail(node* node1) {
+	nlTail = node1;
+	nodeCount++;
 }

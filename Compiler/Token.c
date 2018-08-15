@@ -4,12 +4,12 @@
 
 const int maxTokenNameSz = 128;
 
-freeToken(s_token* t1) {
-	if (t1 != NULL) {
-		if (t1->Name != NULL) {
-			free(t1->Name);
+freeToken(s_token* token) {
+	if (token != NULL) {
+		if (token->Name != NULL) {
+			free(token->Name);
 		}
-		free(t1);
+		free(token);
 	}
 }
 
@@ -30,4 +30,8 @@ s_token* newToken() {
 	}
 
 	return token;
+}
+
+int setTokenName(s_token* token, char* buf, size_t len) {
+	return strncpy_s(token->Name, maxTokenNameSz, buf, len);
 }

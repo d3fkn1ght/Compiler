@@ -14,6 +14,7 @@ int appendNode(node* node1);
 node* getNlHead();
 node* getNlTail();
 void freeNlList();
+void freeNode(node* node1);
 node* newNode();
 void printNodes();
-int setNodeName(node* node1, char* buf, int len);
+void setNlTail(node* newlineNode);

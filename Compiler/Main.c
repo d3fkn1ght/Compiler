@@ -42,47 +42,6 @@ int error(exception* e1) {
 	return -1;
 }
 
-int parse(exception* e1, FILE* fp) {
-	int maxline = 256;
-	node* node1 = NULL;
-	parser* ps1 = NULL;
-
-#ifdef DEBUG
-		int i = 0;
-#endif // DEBUG
-
-	int i = 0;
-	if ((ps1 = newParser()) == NULL) {
-		// throw error
-		goto end;
-	}
-
-	if ((node1 = newNode()) == NULL) {
-		// throw error
-	}
-
-	while ((node1 = get_tok(&fp, ps1)) != NULL) {
-		if ((appendNode(node1)) != 0) {
-			// throw error
-		}
-#ifdef _DEBUG
-		if (++i > 16) {
-			break;
-		}
-#endif // _DEBUG
-
-	}
-
-#ifdef _DEBUG
-	printNodes();
-#endif // _DEBUG
-	
-end:
-	freeParser(ps1);
-	freeNlList();
-	return 0;
-}
-
 int parseArgs() {
 	// for loop to parse and set args
 	// if error return BADARGUMENT;
@@ -97,6 +56,7 @@ int main(int argc, char** argv) {
 	exception* e1 = NULL;
 	FILE *srcFP = NULL, *destFP = NULL;
 	errno_t err;
+	parser* ps1 = NULL;
 
 	if (argc > 1) {
 		if (parseArgs != 0) {
@@ -122,7 +82,13 @@ int main(int argc, char** argv) {
 		goto end;
 	}
 */
-	if (parse(e1,srcFP) != 0) {
+
+	if ((ps1 = newParser()) == NULL) {
+		// throw error
+		goto end;
+	}
+
+	if (lex(srcFP,ps1) != 0) {
 		error(e1);
 	}
 
