@@ -1,31 +1,40 @@
 #pragma once
 
 extern const int maxTokenNameSz;
+extern const char* tokenSzNames[];
 
-typedef struct s_token s_token;
 typedef enum tokenType tokenType;
 
-typedef struct s_token {
+typedef struct token {
 	tokenType tType;
-	char* Name;
-} s_token;
+	char* str;
+} token;
 
-freeToken(s_token* token);
-s_token* newToken();
-int setTokenName(s_token* token, char* buf, size_t len);
+freeToken(token* t1);
+
+#ifdef _DEBUG
+const char* getTokenName(token* t1);
+#endif // _DEBUG
+
+token* newToken();
+int setTokenName(token* t1, char* buf, size_t len);
 
 enum tokenType {
 	NONE,
-	ID,
 	INT,
+	RETURN,
+	ID,
+	NUMBER,
 	LBRACE,
 	LPAREN,
 	NEWLINE,
-	NUMBER,
 	RBRACE,
-	RETURN,
 	RPAREN,
 	SEMICOLON,
+	PLUS,
+	PLUSPLUS,
+	MINUSMINUS,
+	E_EOF,
 	ERROR
 };
 
@@ -44,5 +53,9 @@ enum tokenType {
 #define RBRACE		8
 #define RPAREN		9
 #define SEMICOLON	10
+#define PLUS		11
+#define PLUSPLUS	12
+#define MINUSMINUS  13
 
-#define ERROR 11
+#define E_EOF 14
+#define ERROR 15

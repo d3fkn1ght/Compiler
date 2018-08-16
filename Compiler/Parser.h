@@ -4,12 +4,12 @@
 #include "Token.h"
 
 typedef enum parserState {
+	PS_COMMENT,
 	PS_EOF,
 	PS_ERR,
-	PS_OK,
-	PS_PARSE,
-	PS_START,
-	PS_SCAN
+	PS_MORE,
+	PS_SCAN,
+	PS_STRING,
 } parserState;
 
 typedef struct parser parser;
@@ -22,13 +22,10 @@ struct parser {
 	int colno;
 	char* start;
 	char* end;
-	char* buf;
+	char* buffer1;
+	char* buffer2;
 	FILE* fp;
 };
 
 freeParser(parser* ps1);
-tokenType matchToken(FILE** fp, parser* ps1);
-tokenType matchOne(parser* ps1);
-tokenType matchTwo(parser* ps1);
 parser* newParser();
-size_t stringContainsSingleCharToken(char* buffer);

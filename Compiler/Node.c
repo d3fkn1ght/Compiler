@@ -42,12 +42,12 @@ node* getNlTail() {
 
 void freeNode(node* node1) {
 	if (node1 != NULL) {
-		freeToken(node1->token);
+		freeToken(node1->t1);
 		free(node1);
 	}
 }
 
-node* newNode() {
+node* newNode(token* t1) {
 	node* node1 = NULL;
 
 	if ((node1 = (node*)malloc(sizeof(node))) == NULL) {
@@ -55,11 +55,12 @@ node* newNode() {
 	}
 
 	// call token constructor
-	if ((node1->token = newToken()) == NULL) {
+	if ((node1->t1 = newToken()) == NULL) {
 		free(node1);
 		return NULL;
 	}
 
+	node1->t1 = t1;
 	node1->Next = NULL;
 	return node1;
 }
@@ -67,8 +68,7 @@ node* newNode() {
 void printNodes() {
 	node* current = getNlHead();
 	while (current != NULL) {
-		fprintf(stderr, "Node Type: %d\n", current->token->tType);
-		fprintf(stderr, "Node Name: %s\n", current->token->Name);
+		fprintf(stderr, "Node Name:%s\n", getTokenName(current->t1));
 		current = current->Next;
 	}
 }

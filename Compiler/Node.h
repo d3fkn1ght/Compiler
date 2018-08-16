@@ -5,7 +5,7 @@ typedef struct node node;
 //typedef struct nodeList nodeList;
 
 struct node {
-	s_token* token;
+	token* t1;
 	node* Next;
 };
 
@@ -15,6 +15,6 @@ node* getNlHead();
 node* getNlTail();
 void freeNlList();
 void freeNode(node* node1);
-node* newNode();
+node* newNode(token* token);
 void printNodes();
 void setNlTail(node* newlineNode);
