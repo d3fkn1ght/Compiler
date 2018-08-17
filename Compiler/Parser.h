@@ -7,6 +7,7 @@ typedef enum parserState {
 	PS_COMMENT,
 	PS_EOF,
 	PS_ERR,
+	PS_LEX,
 	PS_MORE,
 	PS_SCAN,
 	PS_STRING,

@@ -6,17 +6,20 @@
 
 node* nlHead = NULL;
 node* nlTail = NULL;
-int nodeCount = 0;
 
 int appendNode(node* node1) {
 	if (nlHead == NULL) {
 		nlHead = node1;
-		nlTail = node1;
 	}
 
-	nlTail->Next = node1;
-	nlTail = node1;
-	nodeCount++;
+	if (nlTail == NULL) {
+		nlTail = node1;
+		nlTail->Next = NULL;
+	}
+	else {
+		nlTail->Next = node1;
+		nlTail = node1;
+	}
 
 	return 0;
 }
@@ -26,8 +29,8 @@ void freeNlList() {
 	node* tmpNode = NULL;
 
 	while (current != NULL) {
-		tmpNode = current;
-		free(current);
+		tmpNode = current->Next;
+		freeNode(current);
 		current = tmpNode;
 	}
 }
@@ -71,9 +74,4 @@ void printNodes() {
 		fprintf(stderr, "Node Name:%s\n", getTokenName(current->t1));
 		current = current->Next;
 	}
-}
-
-void setNlTail(node* node1) {
-	nlTail = node1;
-	nodeCount++;
 }

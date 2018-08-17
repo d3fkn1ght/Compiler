@@ -105,6 +105,8 @@ int main(int argc, char** argv) {
 		fclose(destFP);
 	}
 	
+	freeNlList();
+
 	fprintf_s(stdout, "Press any key to continue");
 	gets_s(key, 1);
 	return err;

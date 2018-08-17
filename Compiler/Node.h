@@ -17,4 +17,3 @@ void freeNlList();
 void freeNode(node* node1);
 node* newNode(token* token);
 void printNodes();
-void setNlTail(node* newlineNode);

@@ -3,8 +3,15 @@
 #include "Token.h"
 
 const int maxTokenNameSz = 128;
+const int keywordCount = 3;
 
-const char* tokenSzNames[] = {
+const char* keywords[] = {
+	"NONE",
+	"int",
+	"return"
+};
+
+char* tokenNames[] = {
 	"NONE",
 	"INT",
 	"RETURN",
@@ -23,20 +30,14 @@ const char* tokenSzNames[] = {
 	"ERROR"
 };
 
-freeToken(token* _token) {
-	if (_token != NULL) {
-		if (_token->str != NULL) {
-			free(_token->str);
+freeToken(token* t1) {
+	if (t1 != NULL) {
+		if (t1->str != NULL) {
+			free(t1->str);
 		}
-		free(_token);
+		free(t1);
 	}
 }
-
-#ifdef _DEBUG
-const char* getTokenName(token* t1) {
-	return tokenSzNames[t1->tType];
-}
-#endif
 
 token* newToken() {
 	token* t1 = NULL;

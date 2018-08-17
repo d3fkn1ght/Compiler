@@ -2,6 +2,13 @@
 #include <string.h>
 
 #include "Tokenizer.h"
+#include "Token.h"
+
+#define isAlpha(c) (\
+				(((c >= 'a') && (c <= 'z'))  || ((c >= 'A') && (c <= 'Z'))))
+
+#define isWhiteSpace(c) (\
+				(c == ' ') )
 
 #define possibleNumberStart(c) (\
 				((c >= '0' && c <= '9') || (c == '-') || (c == '.')))
@@ -24,14 +31,8 @@
 
 int lineSize = 256;
 
-const char* tokenNames[] = {
-	"NONE",
-	"int",
-	"return"
-};
-
 size_t containsTokenChar(char* buffer) {
-	char* tokenChars = "{}();+";
+	char* tokenChars = " {}();+";
 	char* test = strpbrk(buffer, tokenChars);
 
 	if (test != NULL) {
@@ -41,26 +42,54 @@ size_t containsTokenChar(char* buffer) {
 	return 0;
 }
 
+void getLexeme(char* buffer, size_t* tokenLength) {
+	int index = 0;
+	while (!(isWhiteSpace(buffer[index])) && (isAlpha(buffer[index]))) {
+		index++;
+		*tokenLength += 1;
+	}
+}
+
+void eatWhiteSpace(FILE* fp, parser* ps1) {
+	char* scanResult = NULL;
+	char* whiteSpaceChars = " ";
+
+	while (strncmp(ps1->buffer1, " ", 1) == 0) {
+		ps1->buffer1++;
+		if (feof(fp)) {
+			ps1->psState = PS_EOF;
+			return;
+		}
+	}
+}
 
 token* get_tok(FILE* fp, parser* ps1) {
-	char* substr = NULL;
+//	char* substr = NULL;
 	token* token = NULL;
 	size_t tokenLength = 0;
 	tokenType tType = NONE;
 
-	if ((substr = (char*)malloc(sizeof(char) * maxTokenNameSz)) == NULL) {
+	// fix memory leak
+/*	if ((substr = (char*)malloc(sizeof(char) * maxTokenNameSz)) == NULL) {
 		// throw error
 		goto end;
 	}
-
+*/
 	if (ps1->psState == PS_SCAN) {
+		ps1->buffer1 = ps1->start;
+		if (feof(fp)) {
+			ps1->psState = PS_EOF;
+			return NULL;
+		}
 		if ((fgets(ps1->buffer1, BUFSIZE, fp)) == NULL) {
 			ps1->psState = PS_EOF;
 			goto end;
 		}
 		ps1->end += strlen(ps1->buffer1);
-		ps1->psState = PS_MORE;
+		ps1->psState = PS_LEX;
 	}
+
+	eatWhiteSpace(fp, ps1);
 
 	if ((tType = matchTwo(ps1)) != NONE) {
 		if ((token = newToken()) == NULL) {
@@ -76,8 +105,7 @@ token* get_tok(FILE* fp, parser* ps1) {
 		ps1->buffer1 += 2;
 		return token;
 	}
-
-
+	
 	if ((tType = matchOne(ps1)) != NONE) {
 		if ((token = newToken()) == NULL) {
 			// throw error
@@ -94,33 +122,18 @@ token* get_tok(FILE* fp, parser* ps1) {
 		return token;
 	}
 
-	if ((tokenLength = containsTokenChar(ps1->buffer1)) > 0) {
-		if (strncpy_s(substr, maxTokenNameSz, ps1->buffer1, tokenLength) == -1) {
-			// throw error
-			goto end;
+	getLexeme(ps1->buffer1,&tokenLength);
+	
+	if (tokenLength == 0) {
+		if (feof(fp)) {
+			ps1->psState = PS_EOF;
 		}
-
-		if ((tType = matchToken(ps1, &tokenLength)) != NONE) {
-			if ((token = newToken()) == NULL) {
-				// throw error
-				goto end;
-			}
-			
-			if ((setTokenName(token, ps1->buffer1, tokenLength)) == -1) {
-				// throw error
-				goto end;
-			}
-
-			token->tType = tType;
-			ps1->buffer1 += tokenLength;
-			return token;
+		else {
+			ps1->psState = PS_ERR;
 		}
-
-		// throw error
-		goto end;
+		return NULL;
 	}
 
-	tokenLength = strlen(ps1->buffer1);
 	if ((tType = matchToken(ps1,&tokenLength)) != NONE) {
 		if ((token = newToken()) == NULL) {
 			// throw error
@@ -179,12 +192,15 @@ token* get_tok(FILE* fp, parser* ps1) {
 
 	// else get more input or handle string, multi-line comment, command, etc
 end:
-	if (substr != NULL) {
-		free(substr);
-	}
+	return NULL;
 
-	return NONE;
 }
+
+#ifdef _DEBUG
+const char* getTokenName(token* t1) {
+	return tokenNames[t1->tType];
+}
+#endif
 
 int lex(FILE* fp, parser* ps1) {
 	size_t tokenLength = 0;
@@ -206,11 +222,10 @@ int lex(FILE* fp, parser* ps1) {
 	free(t1);
 
 #ifdef _DEBUG
-	//printNodes();
+	printNodes();
 #endif // _DEBUG
 
 	if (ps1->psState == PS_ERR) {
-		// throw error
 		return -1;
 	}
 
@@ -265,8 +280,8 @@ tokenType matchToken(parser* ps1, size_t* tokenLength) {
 		*tokenLength -= 1;
 	}
 
-	for (int i = 1; i < (sizeof(tokenNames)/sizeof(const char*)); i++) {
-		if ((strncmp(ps1->buffer1, tokenNames[i],*tokenLength)) == 0) {
+	for (int i = 1; i < keywordCount; i++) {
+		if ((strncmp(ps1->buffer1, keywords[i],*tokenLength)) == 0) {
 			return (tokenType)i;
 		}
 	}

@@ -1,12 +1,2 @@
-int
-return
-(
-)
-{
-}
-;
-x
-xx
-x_
-x_x
-100
+ 
+ int double(int x) { return x + x; }

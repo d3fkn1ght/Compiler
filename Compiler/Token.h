@@ -1,7 +1,9 @@
 #pragma once
 
 extern const int maxTokenNameSz;
-extern const char* tokenSzNames[];
+extern const int keywordCount;
+extern const char* keywords[];
+extern char* tokenNames[];
 
 typedef enum tokenType tokenType;
 
@@ -35,7 +37,8 @@ enum tokenType {
 	PLUSPLUS,
 	MINUSMINUS,
 	E_EOF,
-	ERROR
+	ERROR,
+	SPACE
 };
 
 #define NONE 0
@@ -57,5 +60,5 @@ enum tokenType {
 #define PLUSPLUS	12
 #define MINUSMINUS  13
 
-#define E_EOF 14
-#define ERROR 15
+#define E_EOF		14
+#define ERROR		15

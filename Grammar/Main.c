@@ -18,13 +18,6 @@ int main(int argc, char** argv[]) {
 		//fprintf error
 		goto end;
 	}
-	
-	// read in all lines from Grammar.h
-	// extern const char tokenNames[]; in token.h
-	// write out to const char* tokenNames[] token.c 
-	// write out to enum tokenType in token.h
-	// write out defines for token.h
-	//	modify singleCharTokens string in stringContainsSingleCharToken function of tokenizer.c
 
 end:
 	if (srcFP != NULL) {
