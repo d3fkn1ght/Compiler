@@ -20,3 +20,5 @@ int setTokenName(token* t1, char* buf, size_t len);
 
 enum tokenType {
 	NONE,
+	INT,
+	RETURN,

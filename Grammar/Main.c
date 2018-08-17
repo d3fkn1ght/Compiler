@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 
 /*
 const char* tokenNames[] = {
@@ -29,8 +30,33 @@ int twoCharTokenOffset = 0;
 int keywordCount = 0;
 int maxRead = 4096;
 
+typedef enum parseGrammarState {
+	PS_STARTED,
+	PS_KEYWORDS,
+	PS_SPECIAL,
+	PS_TWOCHARTOKENS,
+	PS_ONECHARTOKENS,
+	PS_DEFINES,
+	PS_DONE,
+	PS_SUCCESS
+} parseGrammarState;
+
+char* readBuffer = NULL;
+parseGrammarState psgState = PS_STARTED;
+
 void error(char* str, errno_t err) {
 	fprintf(stderr, "%s: %d\n", str, err);
+}
+
+void ucase(char* input) {
+	int index = 0;
+	size_t len = strlen(input);
+
+	while (*input && (index < len)) {
+		*input = toupper((unsigned char)*input);
+		++input;
+		++index;
+	}
 }
 
 generateHeader(FILE* input, FILE* Grammar, FILE* Token) {
@@ -64,29 +90,67 @@ generateHeader(FILE* input, FILE* Grammar, FILE* Token) {
 }
 
 generateKeywords(FILE* input, FILE* Grammar, FILE* Token) {
-	char* line = (char*)malloc(sizeof(char) * maxRead);
-	fgets(line, maxRead, Grammar);
+	fgets(readBuffer, maxRead, input);
 	
-	if (strncmp(line, "// keywords\n", 11) != 0) {
-		error("Top line should be a // keywords", EOTHER);
+	if (strncmp(readBuffer, "// ", 11) != 0) {
+		error("Missing header of // special", EOTHER);
 	}
-
+	
 	for (;;) {
-		if (fgets(line, maxRead, Grammar) == NULL) {
+		if (fgets(readBuffer, maxRead, input) == NULL) {
 			break;
 		}
-	
-		fprintf(Grammar, "\t\"%s\",\n", line);
-		break;
-		// read in keyword from Grammar
-		// write out to Grammar.h
-		// write out to Token.h
-		// append to buffer to write for Token.h defines
+
+		if (readBuffer[0] == '\n') {
+			break;
+		}
+
+		if (readBuffer[strlen(readBuffer) - 1] == '\n') {
+			readBuffer[strlen(readBuffer) - 1] = '\0';
+		}
+
+		// write to Grammar.h
+		fprintf(Grammar, "\t\"%s\",\n", readBuffer);
+
+		// write to Token.h
+		ucase(readBuffer);
+		fprintf(Token, "\t%s,\n", readBuffer);
+		keywordCount++;
 	}
+
+	psgState = PS_KEYWORDS;
 }
 
 generateSpecialTokens(FILE* input, FILE* Grammar, FILE* Token) {
+	fgets(readBuffer, maxRead, input);
 
+	if (strncmp(readBuffer, "// ", 10) != 0) {
+		error("Missing header of // special", EOTHER);
+	}
+
+	for (;;) {
+		if (fgets(readBuffer, maxRead, input) == NULL) {
+			break;
+		}
+
+		if (readBuffer[0] == '\n') {
+			break;
+		}
+
+		if (readBuffer[strlen(readBuffer) - 1] == '\n') {
+			readBuffer[strlen(readBuffer) - 1] = '\0';
+		}
+
+		// write to Grammar.h
+		fprintf(Grammar, "\t\"%s\",\n", readBuffer);
+
+		// write to Token.h
+		ucase(readBuffer);
+		fprintf(Token, "\t%s,\n", readBuffer);
+		keywordCount++;
+	}
+
+	psgState = PS_KEYWORDS;
 }
 
 generateOneCharTokens(FILE* input, FILE* Grammar, FILE* Token) {
@@ -153,6 +217,12 @@ int main(int argc, char** argv[]) {
 	FILE *input = NULL, *Grammar = NULL, *Token = NULL;
 	errno_t err;
 
+	if((readBuffer = (char*)malloc(sizeof(char) * maxRead)) == NULL) {
+		error("Could not create readBuffer", ENOMEM);
+		goto end;
+	}
+
+
 	if ((err = fopen_s(&input, srcFile, "r")) != 0) {
 		error("Error opening source file", err);
 		goto end;
@@ -169,13 +239,17 @@ int main(int argc, char** argv[]) {
 	}
 
 	generateHeader(input, Grammar, Token);
-	//generateKeywords(input, Grammar, Token);
+	generateKeywords(input, Grammar, Token);
 	//generateSpecialTokens(input, Grammar, Token);
 	//generateOneCharTokens(input, Grammar, Token);
 	//generateTwoCharTokens(input, Grammar, Token);
 	//generateFooter(Grammar);
 
 end:
+	if (readBuffer != NULL) {
+		free(readBuffer);
+	}
+
 	if (input != NULL) {
 		fclose(input);
 	}

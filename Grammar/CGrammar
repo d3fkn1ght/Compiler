@@ -17,3 +17,11 @@ NUMBER
 }
 ;
 +
+
+/* DO NOT MODIFY */
+Format:
+4 Sections:
+Keywords, Special, Two Char Tokens, One Char Token
+Each section has // followed by space and title
+e.g. // keywords
+each keyword, special, or token is on a line by itself with no space before or after
