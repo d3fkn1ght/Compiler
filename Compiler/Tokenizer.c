@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Grammar.h"
 #include "Tokenizer.h"
-#include "Token.h"
+
 
 #define isAlpha(c) (\
 				(((c >= 'a') && (c <= 'z'))  || ((c >= 'A') && (c <= 'Z'))))

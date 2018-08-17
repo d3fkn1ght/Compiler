@@ -1,2 +1,5 @@
-Todo:
-Add exception to different funcs for error tracking
+Error reporting:
+Replace all returns of int for error reporting
+check exception status instead
+Replace all throw errors
+Call setexception

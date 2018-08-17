@@ -1,10 +1,6 @@
 #pragma once
 
 extern const int maxTokenNameSz;
-extern const int keywordCount;
-extern const char* keywords[];
-extern char* tokenNames[];
-
 typedef enum tokenType tokenType;
 
 typedef struct token {

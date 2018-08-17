@@ -1,0 +1,19 @@
+// keywords
+int
+return
+
+// special
+ID
+NUMBER
+
+// two char tokens
+++
+--
+
+// single char tokens
+(
+)
+{
+}
+;
++

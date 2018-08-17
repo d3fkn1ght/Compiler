@@ -1,22 +1,4 @@
 #pragma once
-// read from file
-// convert to grammar
-// write to outfile
-// parseargs function esp -d switch for debug
-// finish error reporting function
-
-/*
-Open brace {
-Close brace }
-Open parenthesis \(
-Close parenthesis \)
-Semicolon ;
-Int keyword int
-Return keyword return
-Identifier [a-zA-Z]\w*
-Integer literal [0-9]+
-
-*/
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,8 +33,8 @@ int parseArgs() {
 
 int main(int argc, char** argv) {
 	char key[1];
-	char* srcFile = "Grammar";
-	char* destFile = "Grammar.h";
+	char* srcFile = "Source";
+	char* destFile = "Object";
 	exception* e1 = NULL;
 	FILE *srcFP = NULL, *destFP = NULL;
 	errno_t err;
@@ -107,7 +89,11 @@ int main(int argc, char** argv) {
 	
 	freeNlList();
 
+#ifdef _DEBUG
 	fprintf_s(stdout, "Press any key to continue");
 	gets_s(key, 1);
+
+#endif // _DEBUG
+
 	return err;
 }

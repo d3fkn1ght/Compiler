@@ -1,34 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
+
+#include "Grammar.h"
 #include "Token.h"
 
 const int maxTokenNameSz = 128;
-const int keywordCount = 3;
-
-const char* keywords[] = {
-	"NONE",
-	"int",
-	"return"
-};
-
-char* tokenNames[] = {
-	"NONE",
-	"INT",
-	"RETURN",
-	"ID",
-	"NUMBER",
-	"LBRACE",
-	"LPAREN",
-	"NEWLINE",
-	"RBRACE",
-	"RPAREN",
-	"SEMICOLON",
-	"PLUS",
-	"PLUSPLUS",
-	"MINUSMINUS",
-	"E_EOF",
-	"ERROR"
-};
 
 freeToken(token* t1) {
 	if (t1 != NULL) {
