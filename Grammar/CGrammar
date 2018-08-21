@@ -6,17 +6,17 @@ return
 ID
 NUMBER
 
-// two char tokens
-++
---
+// double char tokens
+PLUSPLUS ++
+MINUSMINUS --
 
 // single char tokens
-(
-)
-{
-}
-;
-+
+LPAREN (
+RPAREN )
+LBRACE {
+RBRACE }
+SEMICOLON ;
+PLUS +
 
 /* DO NOT MODIFY */
 Format:
@@ -25,3 +25,4 @@ Keywords, Special, Two Char Tokens, One Char Token
 Each section has // followed by space and title
 e.g. // keywords
 each keyword, special, or token is on a line by itself with no space before or after
+leave a blank line between sections

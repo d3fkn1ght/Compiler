@@ -116,9 +116,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Main.c" />
+    <ClCompile Include="Node.c" />
+    <ClCompile Include="Keyword.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CGrammar" />
+    <ClInclude Include="Node.h" />
+    <ClInclude Include="Keyword.h" />
     <ClInclude Include="Token.h" />
   </ItemGroup>
   <ItemGroup>
