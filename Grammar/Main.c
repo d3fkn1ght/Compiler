@@ -148,20 +148,24 @@ void fprintTokens(FILE* Grammar, FILE* Token) {
 void freeLists() {
 	if (keywords != NULL) {
 		freeNodeList(keywords);
+		keywords = NULL;
 	}
 
 	if (specials != NULL) {
 		freeNodeList(specials);
+		specials = NULL;
 	}
 
 
 	if (doubleCharTokens != NULL) {
 		freeNodeList(doubleCharTokens);
+		doubleCharTokens = NULL;
 	}
 
 
 	if (singleCharTokens != NULL) {
 		freeNodeList(singleCharTokens);
+		singleCharTokens = NULL;
 	}
 
 }

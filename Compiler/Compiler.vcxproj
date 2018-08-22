@@ -77,6 +77,9 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
+    <Link>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -85,6 +88,9 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
+    <Link>
+      <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
+    </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -115,6 +121,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Allocator.c" />
     <ClCompile Include="Exception.c" />
     <ClCompile Include="Grammar.c" />
     <ClCompile Include="Main.c" />
@@ -124,6 +131,7 @@
     <ClCompile Include="Tokenizer.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Allocator.h" />
     <ClInclude Include="Exception.h" />
     <ClInclude Include="Grammar.h" />
     <ClInclude Include="Source" />

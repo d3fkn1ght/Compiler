@@ -15,7 +15,9 @@ struct exception {
 	errorType errorType;
 	char* errorStr;
 	char* errorInfo;
+	errno_t err;
 };
 
+freeException(exception* e1);
 exception* new_exception();
 int setException(exception* e1, const char* errorStr, enum errorType eType, const char* errorInfo);

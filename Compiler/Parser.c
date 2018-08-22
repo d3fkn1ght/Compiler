@@ -10,9 +10,14 @@ parser* newParser() {
 		ps1->psState = PS_SCAN;
 		ps1->lineno = 0;
 		ps1->colno = 0;
-		ps1->buffer1 = (char*)malloc(sizeof(char) * BUFSIZE);
-		ps1->buffer2 = (char*)malloc(sizeof(char) * BUFSIZE);
-		if ((ps1->buffer1 == NULL) || (ps1->buffer2 == NULL)) {
+
+		if ((ps1->buffer1 = (char*)malloc(sizeof(char) * BUFSIZE)) == NULL) {
+			free(ps1);
+			return NULL;
+		}
+
+		if ((ps1->buffer2 = (char*)malloc(sizeof(char) * BUFSIZE)) == NULL) {
+			free(ps1->buffer1);
 			free(ps1);
 			return NULL;
 		}
@@ -38,4 +43,6 @@ freeParser(parser* ps1)
 	if (ps1 != NULL) {
 		free(ps1);
 	}
+
+	ps1 = NULL;
 }

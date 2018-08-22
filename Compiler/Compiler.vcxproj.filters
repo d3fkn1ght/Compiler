@@ -36,6 +36,9 @@
     <ClCompile Include="Grammar.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Allocator.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Exception.h">
@@ -58,6 +61,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Grammar.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Allocator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

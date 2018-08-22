@@ -7,24 +7,47 @@
 int maxErrorStrSz = 2050;
 int	maxErrorInfoSz = 130;
 
-exception* e1 = NULL;
+freeException(exception* e1) {
+	if (e1 != NULL) {
+		if (e1->errorInfo != NULL) {
+			free(e1->errorInfo);
+		}
+
+		if (e1->errorStr != NULL) {
+			free(e1->errorStr);
+		}
+	}
+
+	e1->errorInfo = NULL;
+	e1->errorStr = NULL;
+	free(e1);
+}
+
 
 exception* new_exception() {
 	// check if malloc works for each piece of struct
-	exception* e2;
-	e2 = (exception*)malloc(sizeof(exception));
-	e2->errorType = E_NONE;
-	e2->errorStr = (char *)malloc(sizeof(char) * maxErrorStrSz);
-	memset(e2->errorStr, 0, maxErrorStrSz);
+	exception* e1 = NULL;
+	if ((e1 = (exception*)malloc(sizeof(exception))) == NULL) {
+		return e1;
+	}
 
-	e2->errorInfo = (char *)malloc(sizeof(char) * maxErrorInfoSz);
-	memset(e2->errorInfo, 0, maxErrorInfoSz);
-
-	if (e2 == NULL) {
+	if ((e1->errorInfo = (char *)malloc(sizeof(char) * maxErrorInfoSz)) == NULL) {
+		free(e1);
 		return NULL;
 	}
 
-	return e2;
+	if((e1->errorStr = (char *)malloc(sizeof(char) * maxErrorStrSz)) == NULL) {
+		free(e1->errorInfo);
+		free(e1);
+		return NULL;
+	}
+
+	memset(e1->errorInfo, 0, maxErrorInfoSz);
+	memset(e1->errorStr, 0, maxErrorStrSz);
+	e1->err = 0;
+	e1->errorType = E_NONE;
+
+	return e1;
 }
 
 int setException(exception* e1, const char* errorStr, enum errorType eType, const char* errorInfo) {

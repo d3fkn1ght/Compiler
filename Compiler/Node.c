@@ -4,43 +4,26 @@
 
 #include "Node.h"
 
-node* nlHead = NULL;
-node* nlTail = NULL;
-
-int appendNode(node* node1) {
-	if (nlHead == NULL) {
-		nlHead = node1;
+appendNode(nodeList* ll_nodelist, node* node1) {
+	if (ll_nodelist->head == NULL) {
+		ll_nodelist->head = node1;
+		ll_nodelist->tail = node1;
 	}
 
-	if (nlTail == NULL) {
-		nlTail = node1;
-		nlTail->Next = NULL;
-	}
-	else {
-		nlTail->Next = node1;
-		nlTail = node1;
-	}
-
-	return 0;
+	ll_nodelist->tail->Next = node1;
+	ll_nodelist->tail = node1;
 }
 
-void freeNlList() {
-	node* current = getNlHead();
+void freeNlList(nodeList* ll_nodelist) {
 	node* tmpNode = NULL;
 
-	while (current != NULL) {
-		tmpNode = current->Next;
-		freeNode(current);
-		current = tmpNode;
+	while (ll_nodelist->head != NULL) {
+		tmpNode = ll_nodelist->head->Next;
+		freeNode(ll_nodelist->head);
+		ll_nodelist->head = tmpNode;
 	}
-}
 
-node* getNlHead() {
-	return nlHead;
-}
-
-node* getNlTail() {
-	return nlTail;
+	free(ll_nodelist);
 }
 
 void freeNode(node* node1) {
@@ -58,18 +41,26 @@ node* newNode(token* t1) {
 	}
 
 	// call token constructor
-	if ((node1->t1 = newToken()) == NULL) {
-		free(node1);
-		return NULL;
-	}
 
 	node1->t1 = t1;
 	node1->Next = NULL;
 	return node1;
 }
 
-void printNodes() {
-	node* current = getNlHead();
+nodeList* newNodeList() {
+	nodeList* nl = NULL;
+
+	if ((nl = (nodeList*)malloc(sizeof(nodeList))) != NULL) {
+		nl->head = NULL;
+		nl->tail = NULL;
+	}
+
+	return nl;
+}
+
+void printNodes(nodeList* ll_nodelist) {
+	node* current = ll_nodelist->head;
+
 	while (current != NULL) {
 		fprintf(stderr, "Node Name:%s\n", getTokenName(current->t1));
 		current = current->Next;

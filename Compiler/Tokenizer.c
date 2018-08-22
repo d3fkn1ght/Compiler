@@ -30,8 +30,6 @@
                || (c >= 128)\
 			   || ((c >= '0') && (c <= '9')))
 
-int lineSize = 256;
-
 size_t containsTokenChar(char* buffer) {
 	char* tokenChars = " {}();+";
 	char* test = strpbrk(buffer, tokenChars);
@@ -43,6 +41,22 @@ size_t containsTokenChar(char* buffer) {
 	return 0;
 }
 
+void eatWhiteSpace(FILE* fp, parser* ps1) {
+	int index = 0;
+	size_t len = strlen(ps1->buffer1);
+
+	for (index = 0; index < len; index++) {
+		if (ps1->buffer1[0] != ' ') {
+			break;
+		}
+		ps1->buffer1++;
+	}
+
+	if (index >= len) {
+		ps1->psState = PS_EOF;
+	}
+}
+
 void getLexeme(char* buffer, size_t* tokenLength) {
 	int index = 0;
 	while (!(isWhiteSpace(buffer[index])) && (isAlpha(buffer[index]))) {
@@ -51,187 +65,161 @@ void getLexeme(char* buffer, size_t* tokenLength) {
 	}
 }
 
-void eatWhiteSpace(FILE* fp, parser* ps1) {
-	char* scanResult = NULL;
-	char* whiteSpaceChars = " ";
-
-	while (strncmp(ps1->buffer1, " ", 1) == 0) {
-		ps1->buffer1++;
-		if (feof(fp)) {
-			ps1->psState = PS_EOF;
-			return;
-		}
-	}
-}
-
-token* get_tok(FILE* fp, parser* ps1) {
-//	char* substr = NULL;
+int lex(exception* e1, FILE* fp, nodeList* ll_nodelist, parser* ps1) {
 	token* token = NULL;
 	size_t tokenLength = 0;
 	tokenType tType = NONE;
 
-	// fix memory leak
-/*	if ((substr = (char*)malloc(sizeof(char) * maxTokenNameSz)) == NULL) {
-		// throw error
-		goto end;
-	}
-*/
-	if (ps1->psState == PS_SCAN) {
-		ps1->buffer1 = ps1->start;
-		if (feof(fp)) {
-			ps1->psState = PS_EOF;
-			return NULL;
-		}
-		if ((fgets(ps1->buffer1, BUFSIZE, fp)) == NULL) {
-			ps1->psState = PS_EOF;
+	while (1) {
+		if ((feof(fp))&& (ps1->psState != PS_LEX)) {
 			goto end;
 		}
-		ps1->end += strlen(ps1->buffer1);
-		ps1->psState = PS_LEX;
-	}
+		if (ps1->buffer1 == ps1->end) {
+			ps1->psState = PS_SCAN;
+		} 
 
-	eatWhiteSpace(fp, ps1);
+		if (ps1->psState == PS_SCAN) {
+			ps1->buffer1 = ps1->start;
+			if (feof(fp)) {
+				ps1->psState = PS_EOF;
+				goto end;
+			}
+			if ((fgets(ps1->buffer1, BUFSIZE, fp)) == NULL) {
+				ps1->psState = PS_EOF;
+				goto end;
+			}
+			ps1->end += strlen(ps1->buffer1);
+			ps1->psState = PS_LEX;
+		}
 
-	if ((tType = matchTwo(ps1)) != NONE) {
-		if ((token = newToken()) == NULL) {
-			// throw error
+		eatWhiteSpace(fp, ps1);
+
+		if ((tType = matchTwo(ps1)) != NONE) {
+			if ((token = newToken()) == NULL) {
+				// throw error
+				goto end;
+			}
+			if ((setTokenName(token, ps1->buffer1, 2)) == -1) {
+				// throw error
+				goto end;
+			}
+
+			token->tType = tType;
+			ps1->buffer1 += 2;
+			appendNode(ll_nodelist, newNode(token));
+			continue;
+		}
+
+		if ((tType = matchOne(ps1)) != NONE) {
+			if ((token = newToken()) == NULL) {
+				// throw error
+				goto end;
+			}
+
+			if ((setTokenName(token, ps1->buffer1, 1)) == -1) {
+				// throw error
+				goto end;
+			}
+
+			token->tType = tType;
+			ps1->buffer1 += 1;
+			appendNode(ll_nodelist, newNode(token));
+			continue;
+		}
+
+		getLexeme(ps1->buffer1, &tokenLength);
+
+		if (tokenLength == 0) {
+			if (feof(fp)) {
+				ps1->psState = PS_EOF;
+			}
+			else {
+				ps1->psState = PS_ERR;
+			}
 			goto end;
 		}
-		if ((setTokenName(token, ps1->buffer1, 2)) == -1) {
-			// throw error
-			goto end;
+
+		if ((tType = matchToken(ps1, &tokenLength)) != NONE) {
+			if ((token = newToken()) == NULL) {
+				// throw error
+				goto end;
+			}
+
+			token->tType = tType;
+			ps1->buffer1 += tokenLength;
+			appendNode(ll_nodelist, newNode(token));
+			continue;
 		}
 
-		token->tType = tType;
-		ps1->buffer1 += 2;
-		return token;
-	}
-	
-	if ((tType = matchOne(ps1)) != NONE) {
-		if ((token = newToken()) == NULL) {
-			// throw error
-			goto end;
-		}
+		// check for ID
+		int index = 0;
 
-		if ((setTokenName(token, ps1->buffer1, 1)) == -1) {
-			// throw error
-			goto end;
-		}
-
-		token->tType = tType;
-		ps1->buffer1 += 1;
-		return token;
-	}
-
-	getLexeme(ps1->buffer1,&tokenLength);
-	
-	if (tokenLength == 0) {
-		if (feof(fp)) {
-			ps1->psState = PS_EOF;
-		}
-		else {
-			ps1->psState = PS_ERR;
-		}
-		return NULL;
-	}
-
-	if ((tType = matchToken(ps1,&tokenLength)) != NONE) {
-		if ((token = newToken()) == NULL) {
-			// throw error
-			goto end;
-		}
-
-		token->tType = tType;
-		ps1->buffer1 += tokenLength;
-		return token;
-	}
-	
-	// check for ID
-	int index = 0;
-
-	if (possibleNumberStart(ps1->buffer1[index])) {
-		index++;
-		while (possibleNumberDigit(ps1->buffer1[index])) {
+		if (possibleNumberStart(ps1->buffer1[index])) {
 			index++;
+			while (possibleNumberDigit(ps1->buffer1[index])) {
+				index++;
+			}
+
+			if ((token = newToken()) == NULL) {
+				// throw error
+				goto end;
+			}
+
+			if ((setTokenName(token, ps1->buffer1, index)) == -1) {
+				// throw error
+				goto end;
+			}
+
+			token->tType = NUMBER;
+			ps1->buffer1 += index;
+			appendNode(ll_nodelist, newNode(token));
+			continue;
 		}
 
-		if ((token = newToken()) == NULL) {
-			// throw error
-			goto end;
-		}
-
-		if ((setTokenName(token, ps1->buffer1, index)) == -1) {
-			// throw error
-			goto end;
-		}
-
-		token->tType = NUMBER;
-		ps1->buffer1 += index;
-		return token;
-	}
-
-	if (possibleIDStart(ps1->buffer1[index])) {
-		index++;
-		while (possibleIDChar(ps1->buffer1[index])) {
+		if (possibleIDStart(ps1->buffer1[index])) {
 			index++;
+			while (possibleIDChar(ps1->buffer1[index])) {
+				index++;
+			}
+
+			if ((token = newToken()) == NULL) {
+				// throw error
+				goto end;
+			}
+
+			if ((setTokenName(token, ps1->buffer1, index)) == -1) {
+				// throw error
+				goto end;
+			}
+
+			token->tType = ID;
+			ps1->buffer1 += index;
+			appendNode(ll_nodelist, newNode(token));
+			continue;
 		}
 
-		if ((token = newToken()) == NULL) {
-			// throw error
-			goto end;
-		}
-
-		if ((setTokenName(token, ps1->buffer1, index)) == -1) {
-		// throw error
-			goto end;
-		}
-
-		token->tType = ID;
-		ps1->buffer1 += index;
-		return token;
+		// else get more input or handle string, multi-line comment, command, etc
 	}
 
-	// else get more input or handle string, multi-line comment, command, etc
 end:
-	return NULL;
+	freeToken(token);
+	if (ps1->psState == PS_ERR) {
+		return -1;
+	}
 
+#ifdef _DEBUG
+	//printNodes(ll_nodelist);
+#endif // _DEBUG
+	
+	return 0;
 }
+
 
 #ifdef _DEBUG
 const char* getTokenName(token* t1) {
 	return tokenNames[t1->tType];
 }
 #endif
-
-int lex(FILE* fp, parser* ps1) {
-	size_t tokenLength = 0;
-	token* t1 = NULL;
-	tokenType tType = NONE;
-
-	if ((t1 = newToken()) == NULL) {
-		// throw error
-		return -1;
-	}
-
-	while ((t1 = get_tok(fp, ps1)) != NONE) {
-		if (ps1->buffer1 == ps1->end) {
-			ps1->psState = PS_SCAN;
-		}
-		appendNode(newNode(t1));
-	}
-
-	free(t1);
-
-#ifdef _DEBUG
-	printNodes();
-#endif // _DEBUG
-
-	if (ps1->psState == PS_ERR) {
-		return -1;
-	}
-
-	return 0;
-}
 
 tokenType matchOne(parser* ps1) {
 	switch (ps1->buffer1[0]) {

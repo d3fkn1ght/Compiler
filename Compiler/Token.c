@@ -11,6 +11,7 @@ freeToken(token* t1) {
 		if (t1->str != NULL) {
 			free(t1->str);
 		}
+
 		free(t1);
 	}
 }
@@ -24,11 +25,7 @@ token* newToken() {
 		}
 
 		t1->tType = NONE;
-		if ((memset(t1->str, 0, maxTokenNameSz)) == NULL) {
-			free(t1->str);
-			free(t1);
-			return NULL;
-		}
+		memset(t1->str, 0, maxTokenNameSz);
 	}
 
 	return t1;
