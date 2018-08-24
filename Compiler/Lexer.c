@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "Grammar.h"
-#include "Tokenizer.h"
+#include "Lexer.h"
 
 
 #define isAlpha(c) (\
@@ -70,10 +70,19 @@ int lex(exception* e1, FILE* fp, nodeList* ll_nodelist, parser* ps1) {
 	size_t tokenLength = 0;
 	tokenType tType = NONE;
 
-	while (1) {
-		if ((feof(fp))&& (ps1->psState != PS_LEX)) {
+	if ((token = newToken()) == NULL) {
+		// setexception
+		return -1;
+	}
+
+	for (;;) {
+		tokenLength = 0;
+		resetToken(token);
+
+		if (feof(fp) && (ps1->psState == PS_SCAN)) {
 			goto end;
 		}
+
 		if (ps1->buffer1 == ps1->end) {
 			ps1->psState = PS_SCAN;
 		} 
@@ -95,10 +104,6 @@ int lex(exception* e1, FILE* fp, nodeList* ll_nodelist, parser* ps1) {
 		eatWhiteSpace(fp, ps1);
 
 		if ((tType = matchTwo(ps1)) != NONE) {
-			if ((token = newToken()) == NULL) {
-				// throw error
-				goto end;
-			}
 			if ((setTokenName(token, ps1->buffer1, 2)) == -1) {
 				// throw error
 				goto end;
@@ -111,11 +116,6 @@ int lex(exception* e1, FILE* fp, nodeList* ll_nodelist, parser* ps1) {
 		}
 
 		if ((tType = matchOne(ps1)) != NONE) {
-			if ((token = newToken()) == NULL) {
-				// throw error
-				goto end;
-			}
-
 			if ((setTokenName(token, ps1->buffer1, 1)) == -1) {
 				// throw error
 				goto end;
@@ -140,10 +140,6 @@ int lex(exception* e1, FILE* fp, nodeList* ll_nodelist, parser* ps1) {
 		}
 
 		if ((tType = matchToken(ps1, &tokenLength)) != NONE) {
-			if ((token = newToken()) == NULL) {
-				// throw error
-				goto end;
-			}
 
 			token->tType = tType;
 			ps1->buffer1 += tokenLength;
@@ -158,11 +154,6 @@ int lex(exception* e1, FILE* fp, nodeList* ll_nodelist, parser* ps1) {
 			index++;
 			while (possibleNumberDigit(ps1->buffer1[index])) {
 				index++;
-			}
-
-			if ((token = newToken()) == NULL) {
-				// throw error
-				goto end;
 			}
 
 			if ((setTokenName(token, ps1->buffer1, index)) == -1) {
@@ -182,11 +173,6 @@ int lex(exception* e1, FILE* fp, nodeList* ll_nodelist, parser* ps1) {
 				index++;
 			}
 
-			if ((token = newToken()) == NULL) {
-				// throw error
-				goto end;
-			}
-
 			if ((setTokenName(token, ps1->buffer1, index)) == -1) {
 				// throw error
 				goto end;
@@ -199,6 +185,9 @@ int lex(exception* e1, FILE* fp, nodeList* ll_nodelist, parser* ps1) {
 		}
 
 		// else get more input or handle string, multi-line comment, command, etc
+		if (ps1->psState == PS_LEX) {
+			ps1->psState = PS_SCAN;
+		}
 	}
 
 end:
@@ -208,7 +197,7 @@ end:
 	}
 
 #ifdef _DEBUG
-	//printNodes(ll_nodelist);
+	printNodes(ll_nodelist);
 #endif // _DEBUG
 	
 	return 0;

@@ -31,6 +31,11 @@ token* newToken() {
 	return t1;
 }
 
+resetToken(token* token) {
+	token->tType = NONE;
+	memset(token->str, 0, maxTokenNameSz);
+}
+
 int setTokenName(token* t1, char* buf, size_t len) {
 	return strncpy_s(t1->str, maxTokenNameSz, buf, len);
 }

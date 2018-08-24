@@ -434,6 +434,7 @@ writeHeader(FILE* input, FILE* Grammar, FILE* Token) {
 	fprintf_s(Token, "\n");
 	fprintf_s(Token, "\n");
 	fprintf_s(Token, "token* newToken();\n");
+	fprintf_s(Token, "resetToken(token* token);\n");
 	fprintf_s(Token, "int setTokenName(token* t1, char* buf, size_t len);\n");
 	fprintf_s(Token, "\n");
 	fprintf_s(Token, "enum tokenType {\n");

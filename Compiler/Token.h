@@ -15,6 +15,7 @@ const char* getTokenName(token* t1);
 #endif // _DEBUG
 
 token* newToken();
+resetToken(token* token);
 int setTokenName(token* t1, char* buf, size_t len);
 
 enum tokenType {

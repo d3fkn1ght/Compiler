@@ -6,9 +6,10 @@
 
 #include "Allocator.h"
 #include "Exception.h"
+#include "Lexer.h"
 #include "Node.h"
 #include "Parser.h"
-#include "Tokenizer.h"
+
 
 void error(exception* e1) {
 	switch (e1->errorType) {
@@ -22,7 +23,24 @@ void error(exception* e1) {
 	}
 }
 
-int init_compiler(exception** e1, char* destFile, char* srcFile, FILE** destFP, FILE** srcFP, nodeList** ll_nodelist, parser** ps1) {
+void freeObjects(exception* e1, FILE* destFP, FILE* srcFP, nodeList* ll_nodelist, parser* ps1) {
+	if (e1 != NULL) {
+		freeException(e1);
+	}
+
+	if (srcFP != NULL) {
+		fclose(srcFP);
+	}
+
+	if (destFP != NULL) {
+		fclose(destFP);
+	}
+
+	freeNlList(ll_nodelist);
+	freeParser(ps1);
+}
+
+int initializeObjects(exception** e1, char* destFile, char* srcFile, FILE** destFP, FILE** srcFP, nodeList** ll_nodelist, parser** ps1) {
 	
 	if ((*e1 = new_exception()) == NULL) {
 		fprintf(stderr, "Error allocating memory for exception handler");
@@ -73,7 +91,7 @@ int main(int argc, char** argv) {
 	nodeList* ll_nodelist = NULL;
 	parser* ps1 = NULL;
 
-	if (init_compiler(&e1, destFile, srcFile, &destFP, &srcFP, &ll_nodelist, &ps1) != 0) {
+	if (initializeObjects(&e1, destFile, srcFile, &destFP, &srcFP, &ll_nodelist, &ps1) != 0) {
 		// throw error
 		return -1;
 	}
@@ -94,19 +112,9 @@ end:
 		error(e1);
 	}
 
-	if (e1 != NULL) {
-		freeException(e1);
-	}
+	freeObjects(e1, destFP, srcFP, ll_nodelist, ps1);
 
-	if (srcFP != NULL) {
-		fclose(srcFP);
-	}
-	
-	if (destFP != NULL) {
-		fclose(destFP);
-	}
-	
-	freeNlList(ll_nodelist);
+	getchar();
 	return 0;
 
 }

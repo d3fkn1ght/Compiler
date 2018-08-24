@@ -35,14 +35,24 @@ void freeNode(node* node1) {
 
 node* newNode(token* t1) {
 	node* node1 = NULL;
+	token* t2 = NULL;
 
 	if ((node1 = (node*)malloc(sizeof(node))) == NULL) {
 		return NULL;
 	}
 
-	// call token constructor
+	if ((t2 = newToken()) == NULL) {
+		return NULL;
+	}
 
-	node1->t1 = t1;
+	t2->tType = t1->tType;
+	if ((strncpy_s(t2->str, maxTokenNameSz, t1->str, strlen(t1->str))) == -1) {
+		freeToken(t2);
+		freeNode(node1);
+		return NULL;
+	}
+
+	node1->t1 = t2;
 	node1->Next = NULL;
 	return node1;
 }
@@ -62,7 +72,8 @@ void printNodes(nodeList* ll_nodelist) {
 	node* current = ll_nodelist->head;
 
 	while (current != NULL) {
-		fprintf(stderr, "Node Name:%s\n", getTokenName(current->t1));
+		fprintf(stderr, "Node Name: %s\n", getTokenName(current->t1));
+		fprintf(stderr, "Node Str:  %s\n", current->t1->str);
 		current = current->Next;
 	}
 }

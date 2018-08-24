@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "Allocator.h"
 #include "Exception.h"
 
 int maxErrorStrSz = 2050;
@@ -27,6 +28,9 @@ freeException(exception* e1) {
 exception* new_exception() {
 	// check if malloc works for each piece of struct
 	exception* e1 = NULL;
+
+	malloc(52);
+
 	if ((e1 = (exception*)malloc(sizeof(exception))) == NULL) {
 		return e1;
 	}
