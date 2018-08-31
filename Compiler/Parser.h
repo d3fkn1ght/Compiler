@@ -28,5 +28,5 @@ struct parser {
 	FILE* fp;
 };
 
-freeParser(parser* ps1);
+void freeParser(parser* ps1);
 parser* newParser();

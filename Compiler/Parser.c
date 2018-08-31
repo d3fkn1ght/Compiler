@@ -30,19 +30,20 @@ parser* newParser() {
 	return ps1;
 }
 
-freeParser(parser* ps1)
+void freeParser(parser* ps1)
 {
+	if (!ps1) {
+		return;
+	}
+
 	if (ps1->buffer1 != NULL) {
-		free(ps1->buffer1);
+		free(ps1->start);
 	}
 
 	if (ps1->buffer2 != NULL) {
 		free(ps1->buffer2);
 	}
 
-	if (ps1 != NULL) {
-		free(ps1);
-	}
-
+	free(ps1);
 	ps1 = NULL;
 }

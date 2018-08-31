@@ -23,7 +23,7 @@ void error(exception* e1) {
 	}
 }
 
-void freeObjects(exception* e1, FILE* destFP, FILE* srcFP, nodeList* ll_nodelist, parser* ps1) {
+void freeObjects(blocklist* ll_blocklist, exception* e1, FILE* destFP, FILE* srcFP, nodeList* ll_nodelist, parser* ps1) {
 	if (e1 != NULL) {
 		freeException(e1);
 	}
@@ -36,12 +36,19 @@ void freeObjects(exception* e1, FILE* destFP, FILE* srcFP, nodeList* ll_nodelist
 		fclose(destFP);
 	}
 
-	freeNlList(ll_nodelist);
+	freeNodeList(ll_nodelist);
 	freeParser(ps1);
+	freeBlockList(ll_blocklist);
 }
 
-int initializeObjects(exception** e1, char* destFile, char* srcFile, FILE** destFP, FILE** srcFP, nodeList** ll_nodelist, parser** ps1) {
-	
+int initializeObjects(blocklist* ll_blocklist, exception** e1, char* destFile, char* srcFile, FILE** destFP, FILE** srcFP,
+	nodeList** ll_nodelist, parser** ps1)
+{
+	if ((ll_blocklist = initializeAllocator()) == NULL) {
+		fprintf(stderr, "malloc error for std allocator!");
+		return -1;
+	}
+
 	if ((*e1 = new_exception()) == NULL) {
 		fprintf(stderr, "Error allocating memory for exception handler");
 		return -1;
@@ -57,6 +64,7 @@ int initializeObjects(exception** e1, char* destFile, char* srcFile, FILE** dest
 	goto end;
 	}
 	*/
+
 
 	if ((*ll_nodelist = newNodeList()) == NULL) {
 		setException(*e1, "Error allocating memory", ENOMEM, "NodeList");
@@ -82,8 +90,26 @@ int parseArgs() {
 	return 0;
 }
 
+void testAllocator() {
+	// test single allocation
+	char* test = (char*)my_malloc(4096);
+
+	// test too large allocation
+	if ((my_malloc(66000)) != NULL) {
+		fprintf(stderr, "too large allocation should have returned NULL");
+		return;
+	}
+
+	// testing needing new block
+	my_malloc(65000);
+	my_malloc(1024);
+
+	freeBlockList();
+}
+
 int main(int argc, char** argv) {
 	// change to use name so that main.c becomes main.o
+	blocklist* ll_blocklist = NULL;
 	char* destFile = "Object";
 	char* srcFile = "Source";
 	exception* e1 = NULL;
@@ -91,15 +117,19 @@ int main(int argc, char** argv) {
 	nodeList* ll_nodelist = NULL;
 	parser* ps1 = NULL;
 
-	if (initializeObjects(&e1, destFile, srcFile, &destFP, &srcFP, &ll_nodelist, &ps1) != 0) {
-		// throw error
-		return -1;
-	}
+	initializeAllocator();
+	testAllocator();
+	return 0;
 
 	if (argc > 1) {
 		if (parseArgs != 0) {
 			setException(e1, "Error parsing arguments", E_ARGPARSE, NULL);
 		}
+	}
+
+	if (initializeObjects(ll_blocklist, &e1, destFile, srcFile, &destFP, &srcFP, &ll_nodelist, &ps1) != 0) {
+		// throw error
+		goto end;
 	}
 
 	if (lex(e1,srcFP,ll_nodelist, ps1) != 0) {
@@ -108,11 +138,13 @@ int main(int argc, char** argv) {
 	}
 
 end:
-	if (e1->errorType != E_NONE) {
-		error(e1);
+	if (e1) {
+		if (e1->errorType != E_NONE) {
+			error(e1);
+		}
 	}
 
-	freeObjects(e1, destFP, srcFP, ll_nodelist, ps1);
+	freeObjects(ll_blocklist, e1, destFP, srcFP, ll_nodelist, ps1);
 
 	getchar();
 	return 0;

@@ -14,8 +14,11 @@ appendNode(nodeList* ll_nodelist, node* node1) {
 	ll_nodelist->tail = node1;
 }
 
-void freeNlList(nodeList* ll_nodelist) {
+void freeNodeList(nodeList* ll_nodelist) {
 	node* tmpNode = NULL;
+	if (!ll_nodelist) {
+		return;
+	}
 
 	while (ll_nodelist->head != NULL) {
 		tmpNode = ll_nodelist->head->Next;

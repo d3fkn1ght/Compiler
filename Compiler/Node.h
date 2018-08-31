@@ -16,7 +16,7 @@ struct nodeList {
 
 //int addnewnode(node** nlist, node* node1);
 appendNode(nodeList* ll_nodelist, node* node1);
-void freeNlList(nodeList* ll_nodelist);
+void freeNodeList(nodeList* ll_nodelist);
 void freeNode(node* node1);
 node* newNode(token* token);
 nodeList* newNodeList();

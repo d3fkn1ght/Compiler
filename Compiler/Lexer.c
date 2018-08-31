@@ -42,7 +42,7 @@ size_t containsTokenChar(char* buffer) {
 }
 
 void eatWhiteSpace(FILE* fp, parser* ps1) {
-	int index = 0;
+	size_t index = 0;
 	size_t len = strlen(ps1->buffer1);
 
 	for (index = 0; index < len; index++) {

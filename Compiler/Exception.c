@@ -29,8 +29,6 @@ exception* new_exception() {
 	// check if malloc works for each piece of struct
 	exception* e1 = NULL;
 
-	malloc(52);
-
 	if ((e1 = (exception*)malloc(sizeof(exception))) == NULL) {
 		return e1;
 	}
