@@ -87,6 +87,9 @@ int parseArgs() {
 }
 
 void testAllocator() {
+	mm_init();
+	mm_malloc(4096);
+
 	// test single allocation
 //	char* test = (char*)my_malloc(4096);
 
@@ -113,7 +116,7 @@ int main(int argc, char** argv) {
 	nodeList* ll_nodelist = NULL;
 	parser* ps1 = NULL;
 
-//	testAllocator();
+	testAllocator();
 //	mm_finalize();
 //	return 0;
 

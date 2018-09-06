@@ -8,4 +8,5 @@ void mm_finalize();
 void mm_free(void* address);
 void mm_freeHeapHdr(mm_heapListHdr* heapHead);
 int mm_init();
+void* mm_malloc(size_t size);
 int waitForMutex();
